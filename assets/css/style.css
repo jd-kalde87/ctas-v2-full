@@ -1,0 +1,89 @@
+/* Definición de Colores Institucionales */
+:root {
+    --color-azul-principal: #0F2027;
+    --color-naranja-acento: #F37321;
+    --color-gris-secundario: #2C3E50;
+    --color-verde-succes: #279927;
+    --color-blanco: #FFFFFF;
+}
+/* =================================== */
+/* === PERSONALIZACIÓN DE PLANTILLA === */
+/* =================================== */
+
+
+/* Estilos específicos para la imagen en el login */
+.logo-img{
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1.5rem;
+    display: block;
+    transition: transform 0.3s ease; /* hace suave la transición */
+
+}
+
+.logo-img:hover{
+    transform: scale(1.1); /* agranda la imagen un 10% */
+    cursor: pointer; /* cambia el cursor a puntero */
+}
+#pie_login {
+    text-align: center;
+    margin-top: 1.875rem;
+}
+
+/* --- Estilos para la página de firma (firmar_acta.php) --- */
+
+/* Estilo general para el fondo de la página de firma */
+body.firma-page {
+  background-color: #f4f6f9;
+}
+
+/* Estilo para el recuadro donde se dibuja la firma */
+.signature-pad {
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  cursor: crosshair;
+}
+
+/* Contenedor para centrar el bloque de la firma */
+.signature-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Párrafo de confirmación debajo del cuadro de la firma */
+.signature-confirmation-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  max-width: 500px;
+}
+
+
+/* Cambiar el color de fondo de la barra lateral */
+.sidebar-dark-primary {
+    background-color: var(--color-azul-principal) !important;
+}
+
+/* Cambiar el color del enlace activo y al pasar el mouse en la barra lateral */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: var(--color-naranja-acento) !important;
+    color: var(--color-blanco) !important;
+}
+
+/* Cambiar el color de los botones primarios */
+.btn-primary {
+    background-color: var(--color-gris-secundario);
+    border-color: var(--color-gris-secundario);
+}
+
+.btn-primary:hover {
+    background-color: #1a2531; /* Un tono más oscuro de gris para el hover */
+    border-color: #1a2531;
+}
+
+/* Cambiar el color de los bordes de las tarjetas primarias */
+.card-primary.card-outline {
+    border-top: 3px solid var(--color-gris-secundario);
+}
