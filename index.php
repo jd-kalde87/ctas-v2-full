@@ -95,12 +95,13 @@ $user_nombre = $_SESSION['user_nombre'] ?? 'Usuario';
 
 <script src="libs/admin-lte/plugins/jquery/jquery.min.js"></script>
 <script src="libs/admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-
 <script src="libs/admin-lte/dist/js/adminlte.min.js"></script>
-
 <script src="libs/datatables/datatables.min.js"></script> 
 <script src="libs/html2canvas/html2canvas.min.js"></script>
+
 <script src="libs/jspdf/jspdf.umd.min.js"></script>
+<script src="libs/jspdf.plugin.autotable.min.js"></script>
+
 <script src="libs/qrcode/qrcode.min.js"></script>
 
 <script src="assets/js/app.js"></script>
