@@ -1,12 +1,12 @@
 <?php
 // Este archivo es solo una plantilla, no necesita lógica PHP compleja.
-// Recibimos el ID que se pasó por POST desde el módulo JS.
 $acta_codigo = htmlspecialchars($_POST['id'] ?? 'ACTA-XXXX');
 ?>
 
 <style>
+    /* Estilos generales del documento */
     #pdf-template {
-        width: 210mm; /* Ancho de una hoja A4 */
+        width: 210mm; 
         padding: 15mm;
         font-family: Arial, sans-serif;
         font-size: 11pt;
@@ -20,13 +20,7 @@ $acta_codigo = htmlspecialchars($_POST['id'] ?? 'ACTA-XXXX');
         border-bottom: 2px solid #444;
         padding-bottom: 10px;
     }
-    .header-col {
-        display: flex;
-        flex-direction: column;
-    }
-    .header-col.logo {
-        width: 25%;
-    }
+    .header-col.logo { width: 25%; }
     .header-col.title {
         width: 50%;
         text-align: center;
@@ -59,6 +53,7 @@ $acta_codigo = htmlspecialchars($_POST['id'] ?? 'ACTA-XXXX');
         padding-bottom: 5px;
         margin-top: 20px;
     }
+    /* --- MODIFICACIÓN DE ESTILOS DE TABLA --- */
     .asistencia-table {
         width: 100%;
         margin-top: 15px;
@@ -71,7 +66,9 @@ $acta_codigo = htmlspecialchars($_POST['id'] ?? 'ACTA-XXXX');
         text-align: left;
     }
     .asistencia-table th {
-        background-color: #f2f2f2;
+        /* ▼▼ REEMPLAZA ESTE COLOR CON UNO DE TU style.css ▼▼ */
+        background-color: #2c3e50; /* Color oscuro de ejemplo */
+        color: white; /* Letra blanca para que contraste */
     }
     .firma-img {
         max-width: 120px;
@@ -100,19 +97,19 @@ $acta_codigo = htmlspecialchars($_POST['id'] ?? 'ACTA-XXXX');
     <div class="pdf-body">
         <div class="pdf-section" id="pdf-info-general">
             <h3>1. Información General</h3>
-            </div>
+        </div>
 
         <div class="pdf-section" id="pdf-contenido-temario">
             <h3>2. Contenido (Temario)</h3>
-            </div>
+        </div>
         
         <div class="pdf-section" id="pdf-desarrollo">
             <h3>3. Desarrollo</h3>
-            </div>
+        </div>
 
         <div class="pdf-section" id="pdf-compromisos">
             <h3>4. Compromisos</h3>
-            </div>
+        </div>
 
         <div class="pdf-section" id="pdf-asistencia">
             <h3>5. Listado de Asistencia</h3>

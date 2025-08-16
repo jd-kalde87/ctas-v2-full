@@ -2,15 +2,13 @@
 
 window.inicializarVista = function(actaCodigo) {
     
-    // Muestra una notificación al usuario de que el proceso ha comenzado.
     window.mostrarNotificacion('Generando PDF del acta, por favor espera...', 'info');
 
-    // 1. Cargar la plantilla HTML en un div temporal y oculto
+    // 1. Cargar la plantilla HTML
     const tempContainer = $('<div>').hide().appendTo('body');
     
     tempContainer.load(`app/plantilla_pdf.php`, { id: actaCodigo }, function() {
         
-        // 2. Endpoint del backend para obtener TODOS los datos del acta (incluidas firmas)
         const url = `${APP_CONFIG.backendUrl}actas/obtener-pdf-data/${actaCodigo}`;
         
         fetch(url, { headers: { 'Authorization': `Bearer ${APP_CONFIG.token}` }})
@@ -26,15 +24,18 @@ window.inicializarVista = function(actaCodigo) {
 
             $('#pdf-codigo').text(acta.codigo);
             
-            // Poblar Información General
+            // --- MODIFICACIÓN 1: Añadir todos los campos a "Información General" ---
             $('#pdf-info-general').append(`
-                <p><strong>Tema:</strong> ${acta.tema}</p>
-                <p><strong>Lugar:</strong> ${acta.lugar}</p>
-                <p><strong>Fecha:</strong> ${acta.fecha}</p>
-                <p><strong>Hora:</strong> ${acta.horaInicio} - ${acta.horaFin}</p>
+                <p><strong>Tema principal:</strong> ${acta.tema || 'N/A'}</p>
+                <p><strong>Tipo de Reunión:</strong> ${acta.tipo_reunion || 'N/A'}</p>
+                <p><strong>Lugar:</strong> ${acta.lugar || 'N/A'}</p>
+                <p><strong>Fecha:</strong> ${acta.fecha ? new Date(acta.fecha).toLocaleDateString('es-CO') : 'N/A'}</p>
+                <p><strong>Hora Inicio:</strong> ${acta.horaInicio || 'N/A'}</p>
+                <p><strong>Hora Fin:</strong> ${acta.horaFin || 'N/A'}</p>
+                <p><strong>Número de Asistentes:</strong> ${acta.numeroParticipantes !== undefined ? acta.numeroParticipantes : 'N/A'}</p>
             `);
 
-            // Poblar Temario
+            // Poblar Temario (sin cambios)
             if (acta.temario) {
                 let temarioHtml = '<ol>';
                 const temarioItems = Array.isArray(acta.temario) ? acta.temario : acta.temario.split(',');
@@ -43,18 +44,17 @@ window.inicializarVista = function(actaCodigo) {
                 $('#pdf-contenido-temario').append(temarioHtml);
             }
 
-            // Poblar Desarrollo y Compromisos (asumiendo que están en el contenido)
+            // Poblar Desarrollo y Compromisos (sin cambios)
             let desarrolloHtml = '<ol>';
             let compromisosHtml = '<table class="asistencia-table"><thead><tr><th>Detalle</th><th>Responsable</th><th>Fecha</th></tr></thead><tbody>';
             contenido.forEach(item => {
                 desarrolloHtml += `<li><strong>${item.temario_code}:</strong> ${item.intervenciones || ''}</li>`;
-                // Suponiendo que los compromisos vienen en el formato que parseamos antes
                 if(item.compromisos) {
                     const lineas = item.compromisos.trim().split(/\\n|\n/);
                     lineas.forEach(linea => {
                         const match = linea.match(/(.*)\[Responsable:\s(.*)\s\|\sFecha:\s(.*)\]/);
                         if (match) {
-                           compromisosHtml += `<tr><td>${match[1].replace(/^\d+\.\s/, '').trim()}</td><td>${match[2].trim()}</td><td>${match[3].trim()}</td></tr>`;
+                            compromisosHtml += `<tr><td>${match[1].replace(/^\d+\.\s/, '').trim()}</td><td>${match[2].trim()}</td><td>${match[3].trim()}</td></tr>`;
                         }
                     });
                 }
@@ -64,21 +64,23 @@ window.inicializarVista = function(actaCodigo) {
             $('#pdf-desarrollo').append(desarrolloHtml);
             $('#pdf-compromisos').append(compromisosHtml);
 
-            // Poblar Asistentes y Firmas
+            // --- MODIFICACIÓN 2: Corregir nombres de campos para Asistentes y Firmas ---
             let firmasHtml = '';
             firmas.forEach(firma => {
+                // Corrección: Usamos 'nombre' y 'apellidos' en lugar de 'nombreCompleto'
+                // Corrección: Usamos 'firma' en lugar de 'firmaData' para que coincida con el backend
                 firmasHtml += `
                     <tr>
-                        <td>${firma.nombreCompleto || 'N/A'}</td>
+                        <td>${firma.nombre || ''} ${firma.apellidos || ''}</td>
                         <td>${firma.empresa || 'N/A'}</td>
                         <td>${firma.cargo || 'N/A'}</td>
-                        <td><img src="${firma.firmaData}" class="firma-img"></td>
+                        <td><img src="${firma.firma}" class="firma-img"></td>
                     </tr>
                 `;
             });
             $('#pdf-asistencia tbody').html(firmasHtml);
 
-            // 4. Usar html2canvas para capturar la plantilla como una imagen
+            // 4. Usar html2canvas (sin cambios)
             const pdfTemplate = document.getElementById('pdf-template');
             html2canvas(pdfTemplate, { scale: 2 }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
@@ -97,7 +99,6 @@ window.inicializarVista = function(actaCodigo) {
                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
                 heightLeft -= pdf.internal.pageSize.getHeight();
 
-                // Manejo de múltiples páginas
                 while (heightLeft >= 0) {
                   position = heightLeft - pdfHeight;
                   pdf.addPage();
