@@ -5,6 +5,7 @@ const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
 const authMiddleware = require('../middleware/authMiddleware');
 
+
 // --- Rutas Públicas ---
 router.post('/login', usuarioController.loginUsuario);
 
@@ -15,6 +16,7 @@ router.post('/obtener_por_cedulas', usuarioController.obtenerUsuarioParaFirma);
 
 // --- Rutas Protegidas (requieren token de admin) ---
 router.get('/obtener', authMiddleware, usuarioController.obtenerUsuarios);
+router.get('/obtener/:cedula', authMiddleware, usuarioController.obtenerUsuarioPorCedula);
 router.post('/crear', authMiddleware, usuarioController.crearUsuario);
 router.patch('/actualizar/:cedula', authMiddleware, usuarioController.actualizarUsuario);
 router.delete('/eliminar/:cedula', authMiddleware, usuarioController.eliminarUsuario);
