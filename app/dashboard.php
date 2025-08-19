@@ -13,7 +13,6 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3>15</h3>
                         <p>Actas Creadas</p>
                     </div>
                     <div class="icon">
@@ -25,13 +24,12 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3>42</h3>
                         <p>Usuarios Registrados</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <a href="#" class="small-box-footer">Gestionar usuarios <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="#" class="small-box-footer" data-vista="lista_usuarios">Gestionar usuarios <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
         </div>
