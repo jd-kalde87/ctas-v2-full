@@ -9,8 +9,11 @@ const authMiddleware = require('../middleware/authMiddleware');
 // --- Rutas Públicas ---
 router.post('/login', usuarioController.loginUsuario);
 
+
 // ****** INICIO DE LA NUEVA RUTA PÚBLICA ******
 router.post('/obtener_por_cedulas', usuarioController.obtenerUsuarioParaFirma);
+router.post('/crear-asistente', usuarioController.crearAsistentePublico);
+
 // ****** FIN DE LA NUEVA RUTA PÚBLICA ******
 
 

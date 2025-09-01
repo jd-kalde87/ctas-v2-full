@@ -45,6 +45,16 @@ $codigo_acta = htmlspecialchars($_GET['codigo'] ?? '');
 
     document.getElementById('form-registro').addEventListener('submit', function(e) {
         e.preventDefault();
+        const messageDiv = document.getElementById('message');
+        const submitButton = document.getElementById('btn-registrar');
+
+        // Ocultar mensajes de error anteriores
+        messageDiv.style.display = 'none';
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+        
+        // CORRECCIÓN 1: Los campos 'contrasena', 'admin' y 'estado' los define el backend por seguridad.
+        // El frontend solo debe enviar los datos que el usuario ingresa.
         const datos = {
             nombre: document.getElementById('nombre').value,
             apellidos: document.getElementById('apellido').value,
@@ -53,26 +63,30 @@ $codigo_acta = htmlspecialchars($_GET['codigo'] ?? '');
             email: document.getElementById('correo').value,
             empresa: document.getElementById('empresa').value,
             cargo: document.getElementById('cargo').value,
-            estado: "activo",
-            contrasena: "", // La contraseña se puede dejar vacía para asistentes
-            admin: false
         };
 
-        // Este es el endpoint que usaba el proyecto antiguo (crear-asistente-acta.php)
-        fetch(`${BACKEND_URL}usuario/crear`, {
+        const endpoint = `${BACKEND_URL}usuario/crear-asistente`;
+
+        fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            // CORRECCIÓN 2: El nombre de la variable era incorrecto (datosDelFormulario -> datos)
             body: JSON.stringify(datos)
         })
         .then(response => {
-            if (response.status !== 201) throw new Error('El documento ya podría estar en uso.');
+            // CORRECCIÓN 3: Mejoramos el manejo de errores para leer el mensaje del backend.
+            if (!response.ok) { // response.ok es false para errores como 401, 409, 500
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Ocurrió un error desconocido.');
+                });
+            }
             return response.json();
         })
         .then(data => {
-            document.getElementById('btn-registrar').disabled = true;
-            const messageDiv = document.getElementById('message');
+            // Esto solo se ejecuta si el registro fue exitoso (status 201)
+            submitButton.disabled = true;
             messageDiv.className = 'alert alert-success mt-3 text-center';
-            messageDiv.innerHTML = `¡Registro exitoso! <br> Serás redirigido para que ingreses de nuevo.`;
+            messageDiv.innerHTML = `¡Registro exitoso! <br> Serás redirigido para que valides tu documento de nuevo.`;
             messageDiv.style.display = 'block';
 
             // Redirigir de vuelta a la página de asistencia después de 3 segundos
@@ -81,10 +95,14 @@ $codigo_acta = htmlspecialchars($_GET['codigo'] ?? '');
             }, 3000);
         })
         .catch(error => {
-            const messageDiv = document.getElementById('message');
+            // Ahora este 'catch' recibirá el mensaje de error específico del backend
             messageDiv.className = 'alert alert-danger mt-3 text-center';
             messageDiv.textContent = `Error: ${error.message}`;
             messageDiv.style.display = 'block';
+            
+            // Habilitar el botón de nuevo si hay un error
+            submitButton.disabled = false;
+            submitButton.textContent = 'Registrarme';
         });
     });
 </script>

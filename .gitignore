@@ -1,0 +1,11 @@
+# Ignorar dependencias de Node.js
+node_modules/
+
+# Ignorar archivos de entorno (siempre deben ser privados)
+.env
+
+# Ignorar nuestro script de un solo uso
+generar-hash.js
+
+# Ignorar archivos de sistema operativo comunes
+.DS_Store

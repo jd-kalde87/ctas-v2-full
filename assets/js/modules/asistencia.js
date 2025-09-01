@@ -1,9 +1,7 @@
 // assets/js/modules/asistencia.js
 
-// Esperamos a que todo el HTML de la página esté cargado para empezar a trabajar
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Obtenemos las variables desde los atributos data-* en el HTML
     const mainContainer = document.getElementById('main-container');
     const BACKEND_URL = mainContainer.dataset.backendUrl;
     const ACTA_CODIGO = mainContainer.dataset.actaCodigo;
@@ -14,7 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnSpinner = document.getElementById('btn-spinner');
     const errorMessage = document.getElementById('error-message');
 
-    form.addEventListener('submit', function(e) {
+    // --- NUEVO: Elementos del modal ---
+    const errorModal = document.getElementById('errorModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const okModalBtn = document.getElementById('okModalBtn');
+
+    // --- NUEVO: Funciones para controlar el modal ---
+    function mostrarModalError() {
+        errorModal.style.display = 'flex';
+    }
+    function ocultarModalError() {
+        errorModal.style.display = 'none';
+    }
+
+    // Eventos para cerrar el modal
+    closeModalBtn.addEventListener('click', ocultarModalError);
+    okModalBtn.addEventListener('click', ocultarModalError);
+
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         const cedula = document.getElementById('cedula').value;
         if (!cedula) {
@@ -27,38 +42,59 @@ document.addEventListener('DOMContentLoaded', function() {
         btnSpinner.style.display = 'inline-block';
         errorMessage.style.display = 'none';
 
-        const endpoint = `${BACKEND_URL}usuario/obtener_por_cedulas`;
+        try {
+            const verificacionUrl = `${BACKEND_URL}firmas-users/verificar`;
+            const verificacionResponse = await fetch(verificacionUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ acta_codigo: ACTA_CODIGO, cedula: cedula })
+            });
 
-        fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cedula: cedula, acta_codigo: ACTA_CODIGO })
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
+            if (!verificacionResponse.ok) {
+                throw new Error('Error al verificar la firma.');
+            }
+
+            const verificacionData = await verificacionResponse.json();
+
+            if (verificacionData.yaFirmo) {
+                // --- CORRECCIÓN: Llamamos a nuestra función de JavaScript puro ---
+                mostrarModalError();
+
+                btnValidar.disabled = false;
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+                return; 
+            }
+            
+            const tokenUrl = `${BACKEND_URL}usuario/obtener_por_cedulas`;
+            const tokenResponse = await fetch(tokenUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cedula: cedula, acta_codigo: ACTA_CODIGO })
+            });
+
+            if (tokenResponse.ok) {
+                const data = await tokenResponse.json();
+                if (data && data[0]) {
+                    const token = data[0];
+                    sessionStorage.setItem('asistenciaToken', token);
+                    window.location.href = `firmar_acta.php?codigo=${ACTA_CODIGO}`;
+                } else {
+                    throw new Error('Respuesta inesperada del servidor. No se recibió el token.');
+                }
             } else {
-                window.location.href = `crear_asistente_publico.php?codigo=${ACTA_CODIGO}`;
+                window.location.href = `crear_asisten te_publico.php?codigo=${ACTA_CODIGO}`;
                 throw new Error('Usuario no encontrado, redirigiendo a registro.');
             }
-        })
-        .then(data => {
-            if (data && data[0]) {
-                const token = data[0];
-                sessionStorage.setItem('asistenciaToken', token);
-                window.location.href = `firmar_acta.php?codigo=${ACTA_CODIGO}`;
-            } else {
-                throw new Error('Respuesta inesperada del servidor. No se recibió el token.');
-            }
-        })
-        .catch(error => {
+
+        } catch (error) {
             if (error.message !== 'Usuario no encontrado, redirigiendo a registro.') {
                 mostrarError(error.message);
                 btnValidar.disabled = false;
                 btnText.style.display = 'inline-block';
                 btnSpinner.style.display = 'none';
             }
-        });
+        }
     });
 
     function mostrarError(mensaje) {

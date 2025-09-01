@@ -71,7 +71,7 @@ $user_nombre = $_SESSION['user_nombre'] ?? 'Usuario';
                     </li>
                     <li class="nav-header">ADMINISTRACIÓN</li>
                     <li class="nav-item">
-                        <a href="lista_usuarios.js" class="nav-link" data-vista="lista_usuarios">
+                        <a href="#" class="nav-link" data-vista="lista_usuarios">
                                 <i class="nav-icon fas fa-users"></i><p>Gestionar Usuarios</p>
                         </a>
                     </li>

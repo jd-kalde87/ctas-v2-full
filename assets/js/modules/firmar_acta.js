@@ -1,4 +1,4 @@
-// assets/js/firmar_acta.js
+// assets/js/modules/firmar_acta.js
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Inicializando página de firma...");
@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return alert("Por favor, provea su firma.");
         }
         const signatureData = signaturePad.toDataURL('image/png');
+        
+        // Deshabilitamos el botón para evitar múltiples clics
+        document.getElementById('save-signature').disabled = true;
+        document.getElementById('save-signature').textContent = 'Guardando...';
+
         enviarFirma(token, signatureData, BACKEND_URL, ACTA_CODIGO);
     });
 });
@@ -164,22 +169,45 @@ function parseCompromisos(compromisosTexto) {
     return html;
 }
 
+// --- INICIO DE LA FUNCIÓN CORREGIDA ---
 function enviarFirma(token, signatureData, backendUrl, actaCodigo) {
+    const boton = document.getElementById('save-signature');
+
     fetch(`${backendUrl}firmas-users/crear`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ firma: signatureData, acta: actaCodigo })
+        body: JSON.stringify({ firma: signatureData, acta_codigo: actaCodigo })
     })
-    .then(response => response.json())
+    .then(response => {
+        // 'response.ok' es true solo para respuestas exitosas (ej: 200, 201)
+        if (!response.ok) {
+            // Si la respuesta es un error, leemos el mensaje de error del backend
+            return response.json().then(errorData => {
+                // Y lo lanzamos para que sea atrapado por el bloque .catch()
+                throw new Error(errorData.message || 'Ocurrió un error en el servidor.');
+            });
+        }
+        return response.json(); // Si fue exitosa, continúa normalmente
+    })
     .then(data => {
-        if (data.error) throw new Error(data.message);
-        sessionStorage.removeItem('asistenciaToken');
-        window.location.href = 'gracias.php';
+        // Esta parte ahora solo se ejecuta si la firma fue realmente exitosa
+        if (data.message) {
+            sessionStorage.removeItem('asistenciaToken');
+            window.location.href = 'gracias.php';
+        }
     })
     .catch(error => {
-        alert(`Error al guardar la firma: ${error.message}`);
+        // Este bloque ahora atrapará el error de firma duplicada
+        console.error('Error al guardar la firma:', error);
+        // Mostramos el mensaje de error específico que viene del backend
+        alert(`Error: ${error.message}`);
+        
+        // Volvemos a habilitar el botón para que el usuario pueda intentarlo de nuevo si es necesario
+        boton.disabled = false;
+        boton.textContent = 'Guardar Firma';
     });
 }
+// --- FIN DE LA FUNCIÓN CORREGIDA ---

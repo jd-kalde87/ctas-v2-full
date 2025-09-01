@@ -134,3 +134,37 @@ exports.eliminarUsuario = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor al eliminar usuario.' });
     }
 };
+
+// --- NUEVA FUNCIÓN PARA REGISTRO PÚBLICO ---
+exports.crearAsistentePublico = async (req, res) => {
+    // Tomamos los datos del formulario que envía el frontend
+    const { cedula, nombre, apellidos, empresa, cargo, telefono, email } = req.body;
+
+    // La contraseña será la misma cédula por defecto, y no será admin
+    const contrasena = cedula; 
+    const admin = 0;
+    const estado = 'activo';
+
+    try {
+        // Encriptamos la contraseña (la cédula) antes de guardarla
+        const salt = await bcrypt.genSalt(10);
+        const contrasenaEncriptada = await bcrypt.hash(contrasena.toString(), salt);
+
+        const nuevoUsuario = {
+            cedula, nombre, apellidos, empresa, cargo, telefono, email,
+            contrasena: contrasenaEncriptada,
+            admin,
+            estado
+        };
+
+        await db.query('INSERT INTO usuario SET ?', [nuevoUsuario]);
+        res.status(201).json({ message: 'Usuario registrado exitosamente.' });
+
+    } catch (error) {
+        console.error("Error al crear asistente público:", error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ message: 'El número de documento ya se encuentra registrado.' });
+        }
+        res.status(500).json({ message: 'Error en el servidor.' });
+    }
+};

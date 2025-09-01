@@ -56,8 +56,21 @@ if (empty($codigo_acta)) {
             </div>
         </div>
     </div>
+<div id="errorModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Acción no permitida</h4>
+            <span id="closeModalBtn" class="modal-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Nuestro sistema indica que usted ya ha registrado una firma para esta acta.</p>
+            <p>No es posible firmar más de una vez. Si cree que esto es un error, por favor, contacte al administrador.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="okModalBtn" class="btn-modal">Entendido</button>
+        </div>
+    </div>
 </div>
-
 <script src="assets/js/modules/asistencia.js" defer></script>
 </body>
 </html>
